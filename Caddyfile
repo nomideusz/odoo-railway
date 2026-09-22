@@ -1,5 +1,10 @@
 {
 	admin off
+	# Hides the boot notices ("admin endpoint disabled", "HTTP/2 requires TLS")
+	# that Railway shows as warnings; proxy errors still get logged.
+	log {
+		level ERROR
+	}
 	servers {
 		# TLS ends at Railway's edge; keep its X-Forwarded-Proto so Odoo builds https:// URLs.
 		trusted_proxies static 0.0.0.0/0 ::/0
