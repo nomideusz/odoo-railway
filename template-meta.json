@@ -4,5 +4,6 @@
   "description": "Odoo 19 ERP & CRM: multi-worker, nightly backups, locked DB manager",
   "category": "CMS",
   "image": "https://raw.githubusercontent.com/odoo/odoo/19.0/addons/web/static/img/odoo-icon.svg",
-  "card_desc": "Odoo 19 with prefork workers, nightly backups to a Railway bucket, and a database manager nobody can reach."
+  "card_desc": "Odoo 19 with prefork workers, nightly backups to a Railway bucket, and a database manager nobody can reach.",
+  "id": "363369e4-ba5a-4dbe-b168-70a3a9efad88"
 }

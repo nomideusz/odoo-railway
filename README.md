@@ -33,7 +33,7 @@ The stack is three pieces: Odoo, a private Postgres, and a Railway bucket for ba
 
 **Sign in** at your Odoo service's Railway domain with login `admin` and the `ODOO_ADMIN_PASSWORD` value from the Odoo service's Variables tab. The first boot builds the database, so give it a minute or two. Change the password in Odoo afterwards; the variable is only read on first boot.
 
-**Memory.** Around 500 MB with a handful of apps in use. On a plan under 1 GB per service, set `ODOO_WORKERS=0` for single-process mode. For more users, raise it (roughly 1 worker per 6 concurrent users).
+**Memory.** Around 500 MB with a handful of apps in use. On plans that give a service less than 1 GB, the template switches to single-process mode by itself (about 320 MB). For more users, set `ODOO_WORKERS` higher (roughly 1 worker per 6 concurrent users).
 
 **Backups and restore.** Backups appear in the Backups bucket as `odoo-Mon.zip` … `odoo-Sun.zip`. For an extra one before a risky change, run `odoo-backup` in a `railway ssh` session on the Odoo service. To restore:
 

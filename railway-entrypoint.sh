@@ -6,7 +6,13 @@ set -euo pipefail
 
 DB=${ODOO_DB:-odoo}
 CONF=/etc/odoo/odoo.conf
-WORKERS=${ODOO_WORKERS:-2}
+# Empty = auto: 2 workers, or single-process mode when the plan gives this service
+# under 1 GB (Railway sets the cgroup limit to the plan cap). Measured: ~500 MB with
+# workers, ~320 MB single-process, with 8 apps and their assets loaded.
+mem=$(cat /sys/fs/cgroup/memory.max 2>/dev/null || echo max)
+WORKERS=${ODOO_WORKERS:-$([ "$mem" != max ] && [ "$mem" -lt 1000000000 ] && echo 0 || echo 2)}
+# Odoo 19 reads ODOO_<option> env vars itself and crashes on an empty one.
+[ -n "${ODOO_WORKERS:-}" ] || unset ODOO_WORKERS
 # An array, not a function: a backgrounded function runs in a subshell that
 # swallows SIGTERM instead of passing it on to Odoo.
 AS_ODOO=(setpriv --reuid=odoo --regid=odoo --init-groups env HOME=/var/lib/odoo)
@@ -49,7 +55,7 @@ for _ in $(seq 60); do pg_isready -q -d postgres && break; sleep 2; done
 if [ "$(psql -d postgres -tAc "SELECT count(*) FROM pg_database WHERE datname = '$DB'")" = 0 ] ||
    [ "$(psql -d "$DB" -tAc "SELECT count(*) FROM pg_tables WHERE schemaname = 'public'")" = 0 ]; then
   echo "railway: first boot, creating database $DB"
-  "${AS_ODOO[@]}" odoo db -c "$CONF" init "$DB" --force --username admin --password "$ODOO_ADMIN_PASSWORD"
+  "${AS_ODOO[@]}" odoo db -c "$CONF" init "$DB" --force --username admin --password "$ODOO_ADMIN_PASSWORD" 2>&1
   # Odoo logs a failed init instead of exiting non-zero; don't serve a half-built database.
   [ "$(psql -d "$DB" -tAc "SELECT state FROM ir_module_module WHERE name = 'base'")" = installed ]
 fi
@@ -58,7 +64,8 @@ fi
 export ODOO_WS_PORT=$([ "$WORKERS" = 0 ] && echo 8069 || echo 8072)
 trap 'kill $(jobs -p) 2>/dev/null; wait; exit 0' TERM INT
 
-"${AS_ODOO[@]}" odoo -c "$CONF" &
+# Odoo logs everything to stderr, which Railway paints red as errors; send it to stdout.
+"${AS_ODOO[@]}" odoo -c "$CONF" 2>&1 &
 odoo_pid=$!
 XDG_CONFIG_HOME=/tmp XDG_DATA_HOME=/tmp "${AS_ODOO[@]}" caddy run --config /etc/caddy/Caddyfile --adapter caddyfile &
 caddy_pid=$!

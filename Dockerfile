@@ -2,6 +2,10 @@
 # break every deploy of this template at once. Bump deliberately.
 FROM odoo:19.0-20260908
 
+# The image sets LANG=en_US.UTF-8 without generating that locale, so every
+# pg_dump (a perl wrapper) prints locale warnings. C.UTF-8 is always present.
+ENV LANG=C.UTF-8
+
 # Prefork mode serves websockets from a separate gevent port; Caddy puts both
 # behind the single port Railway routes to.
 COPY --from=caddy:2.11.4 /usr/bin/caddy /usr/bin/caddy

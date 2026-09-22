@@ -43,9 +43,9 @@
           "isOptional": false
         },
         "ODOO_WORKERS": {
-          "defaultValue": "2",
-          "description": "HTTP worker processes. 0 = single-process mode for plans under 1 GB RAM",
-          "isOptional": false
+          "defaultValue": "",
+          "description": "HTTP worker processes. Empty = auto: 2, or single-process mode (0) on plans under 1 GB RAM",
+          "isOptional": true
         },
         "ODOO_DB": {
           "defaultValue": "${{Postgres.POSTGRES_DB}}",
