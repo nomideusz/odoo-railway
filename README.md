@@ -9,7 +9,7 @@
 The stack is three pieces: Odoo, a private Postgres, and a Railway bucket for backups.
 
 - **Production mode, not the dev server.** Odoo runs with prefork workers (2 HTTP workers, a cron worker and the websocket worker) behind Caddy, with gzip and the memory/time limits from Odoo's deployment docs. Live chat and notifications work over websockets out of the box.
-- **Locked down from the first second.** The database is created on first boot with a generated `admin` password — never `admin`/`admin`. The database manager (`/web/database/manager`), which lets anyone with the master password download or drop your data, is switched off, and the master password is generated too. Postgres has no public proxy.
+- **Locked down from the first second.** The database is created on first boot with a generated `admin` password — never `admin`/`admin`. The database manager (`/web/database/manager`), which lets anyone with the master password download or drop your data, is switched off, and the master password is generated too. The session cookie is `Secure` with HSTS on, as in Odoo's nginx example. Postgres has no public proxy.
 - **Nightly backups.** Every night at 03:00 UTC the database and filestore go to the bundled bucket as the same `.zip` Odoo's database manager makes, one per weekday, so the last 7 days are always there.
 - **Initialized once.** The database is built on the first boot only; redeploys and restarts never re-run module data over your changes.
 
@@ -31,7 +31,7 @@ The stack is three pieces: Odoo, a private Postgres, and a Railway bucket for ba
 
 ### Implementation Details
 
-**Sign in** at your Odoo service's Railway domain with login `admin` and the `ODOO_ADMIN_PASSWORD` value from the Odoo service's Variables tab. The first boot builds the database, so give it a minute or two. Change the password in Odoo afterwards; the variable is only read on first boot.
+**Sign in** at your Odoo service's Railway domain with login `admin` and the `ODOO_ADMIN_PASSWORD` value from the Odoo service's Variables tab. The first boot builds the database, so give it a minute or two. Change the password in Odoo afterwards; the variable is only read on first boot. Before installing Invoicing or Accounting, set your company's country (Settings → Companies) so Odoo loads your country's chart of accounts and taxes.
 
 **Memory.** Around 500 MB with a handful of apps in use. On plans that give a service less than 1 GB, the template switches to single-process mode by itself (about 320 MB). For more users, set `ODOO_WORKERS` higher (roughly 1 worker per 6 concurrent users).
 

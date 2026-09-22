@@ -9,6 +9,11 @@
 :{$PORT} {
 	encode zstd gzip
 
+	# From Odoo's deployment guide (its nginx sample): HSTS, and a session cookie
+	# that never travels over plain HTTP. Odoo itself sets only HttpOnly.
+	header Strict-Transport-Security "max-age=31536000"
+	header >Set-Cookie "^(session_id=.*)$" "$1; Secure; SameSite=Lax"
+
 	# One client IP, not "client, edge": Odoo's login cooldown is per IP.
 	reverse_proxy /websocket* 127.0.0.1:{$ODOO_WS_PORT} {
 		header_up X-Forwarded-For {client_ip}
