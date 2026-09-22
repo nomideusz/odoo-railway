@@ -1,0 +1,19 @@
+{
+	admin off
+	servers {
+		# TLS ends at Railway's edge; keep its X-Forwarded-Proto so Odoo builds https:// URLs.
+		trusted_proxies static 0.0.0.0/0 ::/0
+	}
+}
+
+:{$PORT} {
+	encode zstd gzip
+
+	# One client IP, not "client, edge": Odoo's login cooldown is per IP.
+	reverse_proxy /websocket* 127.0.0.1:{$ODOO_WS_PORT} {
+		header_up X-Forwarded-For {client_ip}
+	}
+	reverse_proxy 127.0.0.1:8069 {
+		header_up X-Forwarded-For {client_ip}
+	}
+}

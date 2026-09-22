@@ -1,0 +1,167 @@
+{
+  "buckets": {
+    "75937d7d-8fc2-40c5-8d31-1bce6c9fcd9f": {
+      "name": "Backups"
+    }
+  },
+  "services": {
+    "abbb1cd7-9566-4b70-b86e-d96423b7981b": {
+      "icon": "https://raw.githubusercontent.com/odoo/odoo/19.0/addons/web/static/img/odoo-icon.svg",
+      "name": "Odoo",
+      "build": {
+        "dockerfilePath": "Dockerfile"
+      },
+      "deploy": {
+        "startCommand": null,
+        "healthcheckPath": "/web/health",
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 10
+      },
+      "source": {
+        "repo": "https://github.com/nomideusz/odoo-railway",
+        "rootDirectory": "/"
+      },
+      "variables": {
+        "PORT": {
+          "defaultValue": "8080",
+          "description": "Port Caddy listens on in front of Odoo - leave as is",
+          "isOptional": false
+        },
+        "ODOO_ADMIN_PASSWORD": {
+          "defaultValue": "${{secret(20)}}",
+          "description": "Password for the 'admin' login, set on first boot only - change it in Odoo afterwards",
+          "isOptional": false
+        },
+        "ODOO_MASTER_PASSWORD": {
+          "defaultValue": "${{secret(32)}}",
+          "description": "Master password for the database manager (off unless ODOO_DB_MANAGER=true)",
+          "isOptional": false
+        },
+        "ODOO_DB_MANAGER": {
+          "defaultValue": "false",
+          "description": "Set to true to open /web/database/manager for a restore or copy, then set back to false",
+          "isOptional": false
+        },
+        "ODOO_WORKERS": {
+          "defaultValue": "2",
+          "description": "HTTP worker processes. 0 = single-process mode for plans under 1 GB RAM",
+          "isOptional": false
+        },
+        "ODOO_DB": {
+          "defaultValue": "${{Postgres.POSTGRES_DB}}",
+          "description": "Database name - wired to the bundled Postgres, leave as is",
+          "isOptional": false
+        },
+        "PGHOST": {
+          "defaultValue": "${{Postgres.RAILWAY_PRIVATE_DOMAIN}}",
+          "description": "Postgres host - private network only, leave as is",
+          "isOptional": false
+        },
+        "PGPORT": {
+          "defaultValue": "5432",
+          "description": "Postgres port",
+          "isOptional": false
+        },
+        "PGUSER": {
+          "defaultValue": "${{Postgres.POSTGRES_USER}}",
+          "description": "Postgres user - wired to the bundled database, leave as is",
+          "isOptional": false
+        },
+        "PGPASSWORD": {
+          "defaultValue": "${{Postgres.POSTGRES_PASSWORD}}",
+          "description": "Postgres password - wired to the bundled database, leave as is",
+          "isOptional": false
+        },
+        "S3_ENDPOINT": {
+          "defaultValue": "${{Backups.ENDPOINT}}",
+          "description": "Nightly backups go to the bundled bucket - leave as is",
+          "isOptional": true
+        },
+        "S3_BUCKET": {
+          "defaultValue": "${{Backups.BUCKET}}",
+          "description": "Backup bucket name. Empty = no nightly backups",
+          "isOptional": true
+        },
+        "S3_REGION": {
+          "defaultValue": "${{Backups.REGION}}",
+          "description": "Backup bucket region",
+          "isOptional": true
+        },
+        "S3_ACCESS_KEY_ID": {
+          "defaultValue": "${{Backups.ACCESS_KEY_ID}}",
+          "description": "Backup bucket credentials",
+          "isOptional": true
+        },
+        "S3_SECRET_ACCESS_KEY": {
+          "defaultValue": "${{Backups.SECRET_ACCESS_KEY}}",
+          "description": "Backup bucket credentials",
+          "isOptional": true
+        },
+        "RAILWAY_HEALTHCHECK_TIMEOUT_SEC": {
+          "defaultValue": "600",
+          "description": "First boot builds the database before the health check can pass",
+          "isOptional": false
+        }
+      },
+      "networking": {
+        "serviceDomains": {
+          "<hasDomain>": {}
+        }
+      },
+      "volumeMounts": {
+        "abbb1cd7-9566-4b70-b86e-d96423b7981b": {
+          "mountPath": "/var/lib/odoo"
+        }
+      }
+    },
+    "3a8846b3-1586-450b-847e-1e545e256a84": {
+      "icon": "https://devicons.railway.com/i/postgresql.svg",
+      "name": "Postgres",
+      "build": {},
+      "deploy": {
+        "startCommand": null,
+        "healthcheckPath": null,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 10
+      },
+      "source": {
+        "image": "ghcr.io/railwayapp-templates/postgres-ssl:17"
+      },
+      "variables": {
+        "POSTGRES_DB": {
+          "defaultValue": "odoo",
+          "description": "Database name",
+          "isOptional": false
+        },
+        "POSTGRES_USER": {
+          "defaultValue": "odoo",
+          "description": "Database superuser - Odoo refuses to run as 'postgres'",
+          "isOptional": false
+        },
+        "POSTGRES_PASSWORD": {
+          "defaultValue": "${{secret(32)}}",
+          "description": "Auto-generated database password",
+          "isOptional": false
+        },
+        "PGDATA": {
+          "defaultValue": "/var/lib/postgresql/data/pgdata",
+          "description": "Data subdirectory - keeps Postgres happy on Railway volumes",
+          "isOptional": false
+        },
+        "RAILWAY_DEPLOYMENT_DRAINING_SECONDS": {
+          "defaultValue": "60",
+          "description": "Time for Postgres to shut down cleanly on redeploy",
+          "isOptional": false
+        }
+      },
+      "networking": {
+        "serviceDomains": {}
+      },
+      "volumeMounts": {
+        "3a8846b3-1586-450b-847e-1e545e256a84": {
+          "mountPath": "/var/lib/postgresql/data"
+        }
+      }
+    }
+  }
+}
