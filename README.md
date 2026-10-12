@@ -1,6 +1,6 @@
 # Deploy and Host Odoo 19 on Railway
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template/odoo-19?utm_medium=integration&utm_source=button&utm_campaign=odoo-19)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template/odoo-19?referralCode=sLjDXb&utm_medium=integration&utm_source=button&utm_campaign=odoo-19)
 
 [Odoo](https://www.odoo.com/) is the open-source business suite: CRM, sales, invoicing and accounting, inventory, purchasing, manufacturing, projects, HR, website and eCommerce — dozens of apps that share one database, so a quote becomes an order, a delivery and an invoice without re-typing anything. This template runs Odoo 19 Community set up the way Odoo's own deployment guide recommends, with nightly backups included.
 
