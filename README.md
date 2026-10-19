@@ -27,7 +27,7 @@ The stack is three pieces: Odoo, a private Postgres, and a Railway bucket for ba
 ### Deployment Dependencies
 
 - [Odoo 19 documentation](https://www.odoo.com/documentation/19.0/)
-- [Template source on GitHub](https://github.com/nomideusz/odoo-railway)
+- [Template source on GitHub](https://github.com/two-workspaces/odoo)
 
 ### Implementation Details
 
